@@ -8,6 +8,7 @@ Desenvolvido por:
 Disciplina: Computação Gráfica
 Data:
 """
+#ANDRÉ TAVERNARO E ANDRÉ ROCCO
 
 import gpu          # Simula os recursos de uma GPU
 
