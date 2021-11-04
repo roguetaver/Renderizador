@@ -12,6 +12,7 @@ Data: 14/10/2021
 import gpu          # Simula os recursos de uma GPU
 import numpy as np
 import math
+import time
 
 
 class GL:
@@ -473,3 +474,197 @@ class GL:
                     continue
                 tri.append(vertex[v])
                 text.append(textura[t])
+
+    @staticmethod
+    def sphere(radius, colors):
+        """Função usada para renderizar Esferas."""
+        # A função sphere é usada para desenhar esferas na cena. O esfera é centrada no
+        # (0, 0, 0) no sistema de coordenadas local. O argumento radius especifica o
+        # raio da esfera que está sendo criada. Para desenha essa esfera você vai
+        # precisar tesselar ela em triângulos, para isso encontre os vértices e defina
+        # os triângulos.
+
+        # TENTAMOS MAS NÃO DEU CERTO, OPTAMOS POR DEIXAR EM BRANCO :(
+
+        # O print abaixo é só para vocês verificarem o funcionamento, DEVE SER REMOVIDO.
+        # imprime no terminal o raio da esfera
+        print("Sphere : radius = {0}".format(radius))
+        # imprime no terminal as cores
+        print("Sphere : colors = {0}".format(colors))
+
+    @staticmethod
+    def navigationInfo(headlight):
+        """Características físicas do avatar do visualizador e do modelo de visualização."""
+        # O campo do headlight especifica se um navegador deve acender um luz direcional que
+        # sempre aponta na direção que o usuário está olhando. Definir este campo como TRUE
+        # faz com que o visualizador forneça sempre uma luz do ponto de vista do usuário.
+        # A luz headlight deve ser direcional, ter intensidade = 1, cor = (1 1 1),
+        # ambientIntensity = 0,0 e direção = (0 0 −1).
+
+        if headlight:
+            GL.directionalLight(0.0, [1, 1, 1], 1, [0, 0, -1])
+
+    @staticmethod
+    def directionalLight(ambientIntensity, color, intensity, direction):
+        """Luz direcional ou paralela."""
+        # Define uma fonte de luz direcional que ilumina ao longo de raios paralelos
+        # em um determinado vetor tridimensional. Possui os campos básicos ambientIntensity,
+        # cor, intensidade. O campo de direção especifica o vetor de direção da iluminação
+        # que emana da fonte de luz no sistema de coordenadas local. A luz é emitida ao
+        # longo de raios paralelos de uma distância infinita.
+
+        GL.lighting = {
+            "ambientIntensity": ambientIntensity,
+            "color": color,
+            "intensity": intensity,
+            "direction": direction
+        }
+
+    @staticmethod
+    def pointLight(ambientIntensity, color, intensity, location):
+        """Luz pontual."""
+        # Fonte de luz pontual em um local 3D no sistema de coordenadas local. Uma fonte
+        # de luz pontual emite luz igualmente em todas as direções; ou seja, é omnidirecional.
+        # Possui os campos básicos ambientIntensity, cor, intensidade. Um nó PointLight ilumina
+        # a geometria em um raio de sua localização. O campo do raio deve ser maior ou igual a
+        # zero. A iluminação do nó PointLight diminui com a distância especificada.
+
+        GL.point_light = {
+            'Ia': ambientIntensity,
+            'Ilrgb': color,
+            'Ii': intensity,
+            'location': np.array(location)
+        }
+
+    @staticmethod
+    def fog(visibilityRange, color):
+        """Névoa."""
+        # O nó Fog fornece uma maneira de simular efeitos atmosféricos combinando objetos
+        # com a cor especificada pelo campo de cores com base nas distâncias dos
+        # vários objetos ao visualizador. A visibilidadeRange especifica a distância no
+        # sistema de coordenadas local na qual os objetos são totalmente obscurecidos
+        # pela névoa. Os objetos localizados fora de visibilityRange do visualizador são
+        # desenhados com uma cor de cor constante. Objetos muito próximos do visualizador
+        # são muito pouco misturados com a cor do nevoeiro.
+
+        # O print abaixo é só para vocês verificarem o funcionamento, DEVE SER REMOVIDO.
+        print("Fog : color = {0}".format(color))  # imprime no terminal
+        print("Fog : visibilityRange = {0}".format(visibilityRange))
+
+    @staticmethod
+    def timeSensor(cycleInterval, loop):
+        """Gera eventos conforme o tempo passa."""
+        # Os nós TimeSensor podem ser usados para muitas finalidades, incluindo:
+        # Condução de simulações e animações contínuas; Controlar atividades periódicas;
+        # iniciar eventos de ocorrência única, como um despertador;
+        # Se, no final de um ciclo, o valor do loop for FALSE, a execução é encerrada.
+        # Por outro lado, se o loop for TRUE no final de um ciclo, um nó dependente do
+        # tempo continua a execução no próximo ciclo. O ciclo de um nó TimeSensor dura
+        # cycleInterval segundos. O valor de cycleInterval deve ser maior que zero.
+
+        # Deve retornar a fração de tempo passada em fraction_changed
+
+        # O print abaixo é só para vocês verificarem o funcionamento, DEVE SER REMOVIDO.
+        print("TimeSensor : cycleInterval = {0}".format(
+            cycleInterval))  # imprime no terminal
+        print("TimeSensor : loop = {0}".format(loop))
+
+        # Esse método já está implementado para os alunos como exemplo
+        # time in seconds since the epoch as a floating point number.
+        epoch = time.time()
+        fraction_changed = (epoch % cycleInterval) / cycleInterval
+
+        return fraction_changed
+
+    @staticmethod
+    def splinePositionInterpolator(set_fraction, key, keyValue, closed):
+        t1 = []
+        t2 = []
+
+        KeyNovo = []
+        for k in range(0, len(keyValue), 3):
+            KeyNovo += [np.array([keyValue[k], keyValue[k+1], keyValue[k+2]])]
+
+        if(set_fraction < key[-2] or set_fraction > key[1]):
+            for t in range(1, len(key)):
+                if set_fraction < key[t]:
+                    t2 += [key[t], t]
+                    t1 += [key[t-1], t-1]
+                    break
+
+        elif (set_fraction < key[1] or set_fraction > key[-2]):
+
+            if closed:
+                if (set_fraction < key[1]):
+                    t1 += [key[-1], -1]
+                    t2 += [key[1], 1]
+                else:
+                    if (set_fraction == key[-1]):
+                        t1 += [key[-1], -1]
+                        t2 += [key[0], 0]
+                    else:
+                        t1 += [key[-2], -2]
+                        t2 += [key[-1], -1]
+            else:
+                if (set_fraction < key[1]):
+                    t1 += [key[0], 0]
+                    t2 += [key[1], 1]
+                else:
+                    t1 += [key[-2], -2]
+                    t2 += [key[-1], -1]
+
+        if not closed:
+            T1, T2 = np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0])
+        elif closed:
+            s = (set_fraction - t1[0])/(t2[0] - t1[0])
+
+            T1 = (KeyNovo[t2[1]] - KeyNovo[t1[1]-1])/2
+            T2 = (KeyNovo[-(len(key) - (t2[1]+1))] - KeyNovo[t1[1]])/2
+
+        mS = np.array([[s**3], [s**2], [s], [1]])
+        mS = np.matrix.transpose(mS)
+
+        mC = np.array([KeyNovo[t1[1]], KeyNovo[t2[1]], T1, T2])
+        
+        mH = np.array([[2, -2, 1, 1],
+                      [-3, 3, -2, -1],
+                      [0, 0, 1, 0],
+                      [1, 0, 0, 0]])
+
+        mVs = np.matmul(mS, mH)
+        mVs = np.matmul(mVs,mC)
+
+        return list(mVs[0])
+
+    @staticmethod
+    def orientationInterpolator(set_fraction, key, keyValue):
+        """Interpola entre uma lista de valores de rotação especificos."""
+        # Interpola rotações são absolutas no espaço do objeto e, portanto, não são cumulativas.
+        # Uma orientação representa a posição final de um objeto após a aplicação de uma rotação.
+        # Um OrientationInterpolator interpola entre duas orientações calculando o caminho mais
+        # curto na esfera unitária entre as duas orientações. A interpolação é linear em
+        # comprimento de arco ao longo deste caminho. Os resultados são indefinidos se as duas
+        # orientações forem diagonalmente opostas. O campo keyValue possui uma lista com os
+        # valores a serem interpolados, key possui uma lista respectiva de chaves
+        # dos valores em keyValue, a fração a ser interpolada vem de set_fraction que varia de
+        # zeroa a um. O campo keyValue deve conter exatamente tantas rotações 3D quanto os
+        # quadros-chave no key.
+
+        # O print abaixo é só para vocês verificarem o funcionamento, DEVE SER REMOVIDO.
+        print("OrientationInterpolator : set_fraction = {0}".format(
+            set_fraction))
+        # imprime no terminal
+        print("OrientationInterpolator : key = {0}".format(key))
+        print("OrientationInterpolator : keyValue = {0}".format(keyValue))
+
+        # Abaixo está só um exemplo de como os dados podem ser calculados e transferidos
+        value_changed = [0, 0, 1, 0]
+
+        return value_changed
+
+    # Para o futuro (Não para versão atual do projeto.)
+    def vertex_shader(self, shader):
+        """Para no futuro implementar um vertex shader."""
+
+    def fragment_shader(self, shader):
+        """Para no futuro implementar um fragment shader."""
